@@ -23,7 +23,7 @@ RSpec.describe 'Posts with authentication', type: :request do
 
                     #payload
                     context 'payload' do
-                        subject { JSON.parse(response.body) }
+                        subject { payload }
                         it { is_expected.to include(:id) }
                     end
 
@@ -40,7 +40,7 @@ RSpec.describe 'Posts with authentication', type: :request do
 
                     #payload
                     context 'payload' do
-                        subject { JSON.parse(response.body) }
+                        subject { payload }
                         it { is_expected.to include(:error) }
                     end
 
@@ -60,10 +60,10 @@ RSpec.describe 'Posts with authentication', type: :request do
     describe 'PUT /posts' do
     end
 
-    #  it 'should return OK' do
-    #         get '/posts'
-    #         payload = JSON.parse(response.body)
-    #         expect(payload).to be_empty
-    #         expect(response).to have_http_status(:ok)
-    #     end
+    private 
+
+    def payload
+        JSON.parse(response.body).with_indifferent_access
+    end
+   
 end
