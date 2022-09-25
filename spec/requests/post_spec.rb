@@ -2,16 +2,32 @@ require 'rails_helper'
 
 RSpec.describe 'Posts', type: :request do
     describe 'GET /posts' do
-        before { get '/posts' }
 
         it 'should return OK' do
+            get '/posts'
             payload = JSON.parse(response.body)
             expect(payload).to be_empty
             expect(response).to have_http_status(:ok)
         end
 
-        
-        describe 'with data in the DB' do
+        describe 'Search' do
+            let!(:hola_mundo) {create(:published_posts, title: 'Hola Mundo')}
+            let!(:hola_rails) {create(:published_posts, title: 'Hola Rails')}
+            let!(:curso_rails) {create(:published_posts, title: 'Curso Rails')}
+
+            it 'should filter posts by title' do
+                get '/posts?search=Hola'
+                payload = JSON.parse(response.body)
+                expect(payload).to_not be_empty
+                expect(payload.size).to eq(2)
+                expect(payload.map { |post| post['id'] }.sort).to eq([hola_mundo.id, hola_rails.id].sort)
+                expect(response).to have_http_status(:ok)
+            end
+        end
+
+    end
+
+    describe 'with data in the DB' do
             let!(:posts ) { create_list(:post, 10, published: true) }
 
             it 'should return all the published posts' do
@@ -22,7 +38,6 @@ RSpec.describe 'Posts', type: :request do
             end
         end
 
-    end
 
     describe 'GET /posts/{id}' do
         let!(:post ) { create(:post) }
