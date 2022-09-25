@@ -1,9 +1,14 @@
 class PostsController < ApplicationController
+    include Secured
 
     before_action :authenticate_user!, only: [:create, :update]
 
     rescue_from Exception do |e|
         render json: {error: e.message}, status: :internal_server_error
+    end
+
+    rescue_from ActiveRecord::RecordNotFound do |e| 
+        render json: {error: e.message}, status: :not_found
     end
 
     rescue_from ActiveRecord::RecordInvalid do |e|
@@ -52,26 +57,5 @@ class PostsController < ApplicationController
 
     def update_params
         params.require(:post).permit(:title, :content, :published)
-    end
-
-    def authenticate_user!
-        # Bearer xxxx
-        token_regex = /Bearer (\w+)/
-
-        # read header auth
-        headers = request.headers
-
-        # verify it's valid
-        if headers['Authorization'].present? && headers['Authorization'].match(token_regex)
-            token = headers['Authorization'].match(token_regex)[1]
-            if (Current.user = User.find_by_auth_token(token))
-                return 
-            end
-
-        end
-
-        render json: {error: 'Unauthorized'}, status: :unauthorized
-        # verify token belongs to user
-
     end
 end
