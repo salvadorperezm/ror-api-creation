@@ -7,5 +7,6 @@ class PostReportJob < ApplicationJob
     report = PostReport.generate(post)
     # Do something later
     # user -> report post -> email report
+    PostReportMailer.post_report(user, post, report).deliver_now
   end
 end
